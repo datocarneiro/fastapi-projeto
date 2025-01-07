@@ -1,7 +1,8 @@
-from typing import List
+from typing import List, Union
 from app.models import TarefaCreate, Tarefa  # importando de models as classes TarefaCreate e Tarefa
 from datetime import datetime
 import pytz
+from fastapi import HTTPException
 
 tarefas_db: List[Tarefa] = []
 id_counter = 1  # Contador para o campo id (autoincremento)
@@ -23,33 +24,35 @@ def adicionar_tarefa(tarefa: TarefaCreate) -> Tarefa:
     )
     
     tarefas_db.append(nova_tarefa)
-    id_counter += 1  # Incrementa o id para a próxima tarefa
+    id_counter += 1 
     return nova_tarefa
 
 # Função para listar todas as tarefas
-def listar_tarefas() -> List[Tarefa]:
+def listar_tarefas() -> Union[str, List[Tarefa]]:
+    if not tarefas_db:
+        raise HTTPException(status_code=404, detail="Não há tarefas criadas.")
     return tarefas_db
 
 # Função para buscar uma tarefa pelo id
-def buscar_tarefa_por_id(tarefa_id: int) -> Tarefa:
+def buscar_tarefa_por_id(id_tarefa: int) -> Tarefa:
     for tarefa in tarefas_db:
-        if tarefa.id == tarefa_id:
+        if tarefa.id == id_tarefa:
             return tarefa
     return None
 
 # Função para atualizar uma tarefa
-def atualizar_tarefa(tarefa_id: int, tarefa: TarefaCreate) -> Tarefa:
+def atualizar_tarefa(id_tarefa: int, tarefa: TarefaCreate) -> Tarefa:
     for t in tarefas_db:
-        if t.id == tarefa_id:
-            t.titulo = tarefa.titulo
-            t.descricao = tarefa.descricao
+        if t.id == id_tarefa:
+            # t.titulo = tarefa.titulo
+            # t.descricao = tarefa.descricao
             t.status = tarefa.status
             t.data_atualizacao = datetime.now(fuso_horario_brasilia)
             return t
     return None
 
 # Função para deletar uma tarefa
-def deletar_tarefa(tarefa_id: int) -> bool:
+def deletar_tarefa(id_tarefa: int) -> bool:
     global tarefas_db
-    tarefas_db = [t for t in tarefas_db if t.id != tarefa_id]
+    tarefas_db = [t for t in tarefas_db if t.id != id_tarefa]
     return True
