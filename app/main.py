@@ -9,3 +9,7 @@ app.include_router(tarefa_router)
 @app.get("/")
 def read_root():
     return {"message": "API de gerenciamento de tarefas - PIXAFLOW"}
+
+
+# uvicorn app.main:app --reload  
+

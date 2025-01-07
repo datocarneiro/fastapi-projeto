@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, root_validator
+from pydantic import BaseModel, Field, field_validator
 from typing import Optional
 from datetime import datetime
 import pytz
@@ -10,18 +10,17 @@ fuso_horario_brasilia = pytz.timezone('America/Sao_Paulo')
 class TarefaBase(BaseModel):
     titulo: str  # Campo obrigatório
     descricao: Optional[str] = None  # Campo opcional
-    estado: str  # Campo obrigatório
+    status: str  # Campo obrigatório
     data_criacao: datetime = Field(default_factory=lambda: datetime.now(fuso_horario_brasilia))  # Data de criação gerada automaticamente com timezone
     data_atualizacao: datetime = Field(default_factory=lambda: datetime.now(fuso_horario_brasilia))  # Data de atualização gerada automaticamente com timezone
-
-    # Validação para o campo 'estado'
-    @root_validator(pre=True)
-    def validar_estado(cls, values):
-        estado = values.get('estado')
-        estados_validos = ["pendente", "em andamento", "concluída"]
-        if estado and estado not in estados_validos:
-            raise ValueError(f"Estado '{estado}' não é válido. \nOs estados validos são: {estados_validos}.")
-        return values
+    
+    # Validação para o campo 'status'
+    @field_validator('status')
+    def validar_status(cls, status):
+        status_validos = ["pendente", "em andamento", "concluída"]
+        if status not in status_validos:
+            raise ValueError(f"status '{status}' não é válido. Os status válidos são: {status_validos}.")
+        return status
 
     class Config:
         orm_mode = True  # Permite conversão automática entre Pydantic e ORM

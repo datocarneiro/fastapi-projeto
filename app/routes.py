@@ -7,9 +7,9 @@ router = APIRouter()
 # Endpoint para criar uma tarefa
 @router.post("/tarefas/", response_model=Tarefa)
 def criar_tarefa(tarefa: TarefaCreate):
-    # Validar o estado da tarefa
-    if tarefa.estado not in ["pendente", "em andamento", "concluída"]:
-        raise HTTPException(status_code=400, detail="Estado inválido")
+    # Validar o status da tarefa
+    if tarefa.status not in ["pendente", "em andamento", "concluída"]:
+        raise HTTPException(status_code=400, detail="status inválido")
     return adicionar_tarefa(tarefa)
 
 # Endpoint para listar todas as tarefas

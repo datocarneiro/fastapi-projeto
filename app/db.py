@@ -17,7 +17,7 @@ def adicionar_tarefa(tarefa: TarefaCreate) -> Tarefa:
         id=id_counter,
         titulo=tarefa.titulo,
         descricao=tarefa.descricao,
-        estado=tarefa.estado,
+        status=tarefa.status,
         data_criacao=data_atual,  # Data de criação com timezone
         data_atualizacao=data_atual  # Data de atualização com timezone
     )
@@ -43,8 +43,7 @@ def atualizar_tarefa(tarefa_id: int, tarefa: TarefaCreate) -> Tarefa:
         if t.id == tarefa_id:
             t.titulo = tarefa.titulo
             t.descricao = tarefa.descricao
-            t.estado = tarefa.estado
-            # Atualiza a data de modificação com fuso horário
+            t.status = tarefa.status
             t.data_atualizacao = datetime.now(fuso_horario_brasilia)
             return t
     return None
