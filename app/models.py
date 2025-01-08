@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from typing import Optional
 from datetime import datetime
 import pytz
@@ -21,9 +21,12 @@ class TarefaBase(BaseModel):
         if status not in status_validos:
             raise ValueError(f"status '{status}' não é válido. Os status válidos são: {status_validos}.")
         return status
+    
+    
 
     class Config:
-        from_attributes = True  # Permite conversão automática entre Pydantic e ORM
+        # from_attributes = True  # Permite conversão automática entre Pydantic e ORM
+        model_config = ConfigDict(validate_assignment=True)
 
 # Modelo para criação de tarefa (sem o id, pois o id será autoincrementado)
 class TarefaCreate(TarefaBase):
