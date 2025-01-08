@@ -14,18 +14,27 @@ ALGORITHM = os.getenv('ALGORITHM')
 ACCESS_TOKEN_EXPIRE_MINUTES = 300
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth")
 
 # Usuários fictícios (substitua por um banco de dados)
 fake_users_db = {
-    "usuario1": {
+    "admin": {
+        "username": os.getenv('ADMIN_USERNAME') ,
+        "full_name": os.getenv('ADMIN_FULL_NAME'),
+        "email": os.getenv('ADMIN_EMAIL'),
+        "hashed_password": pwd_context.hash(os.getenv('ADMIN_PASSWORD')), 
+        "disabled": False,
+    },
+    "user1": {
         "username": os.getenv('USERNAME') ,
         "full_name": os.getenv('FULL_NAME'),
         "email": os.getenv('EMAIL'),
-        "hashed_password": pwd_context.hash(os.getenv('HASHED_PASSWORD')),  # "senha123"
+        "hashed_password": pwd_context.hash(os.getenv('PASSWORD')), 
         "disabled": False,
     }
 }
+
+print(fake_users_db["admin"]["hashed_password"])
 
 # Função para verificar senha
 def verify_password(plain_password, hashed_password):

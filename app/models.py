@@ -31,6 +31,22 @@ class TarefaCreate(TarefaBase):
 
 # Modelo para representar a tarefa completa (inclui o id autoincrementado)
 class Tarefa(TarefaBase):
-    id: int  # Campo id autoincrementado
+    id: int 
+
+# Modelo para atualizar apenas os campo que quiser
+class TarefaUpdate(BaseModel):
+    status: str  # Campo obrigatório
+
+    # titulo: str                               # habilitar se quiser alterar tambem
+    # descricao: Optional[str]                  # habilitar se quiser alterar tambem
+  
+    # Validação para o campo 'status'
+    @field_validator('status')
+    def validar_status(cls, status):
+        status_validos = ["pendente", "em andamento", "concluída"]
+        if status not in status_validos:
+            raise ValueError(f"status '{status}' não é válido. Os status válidos são: {status_validos}.")
+        return status
+
 
 

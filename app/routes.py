@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from app.db import adicionar_tarefa, listar_tarefas, buscar_tarefa_por_id, atualizar_tarefa, deletar_tarefa, tarefas_db
 from app.auth import authenticate_user, create_access_token, get_current_user, ACCESS_TOKEN_EXPIRE_MINUTES, fake_users_db
-from app.models import TarefaCreate, Tarefa, BaseModel
+from app.models import TarefaCreate, Tarefa, BaseModel, TarefaUpdate
 from pydantic import BaseModel
 from datetime import datetime, timedelta
 import  requests
@@ -23,29 +23,15 @@ def criar_tarefa(tarefa: TarefaCreate, current_user: dict = Depends(get_current_
 def get_tarefas(current_user: dict = Depends(get_current_user)):
     return listar_tarefas()
 
-#####################################################################################################################
+########################################################################################################################
 # Endpoint para buscar uma tarefa pelo id
 @router.get("/tarefas/{id_tarefa}", response_model=Tarefa)
 async def get_tarefa(id_tarefa: int):
     tarefa = buscar_tarefa_por_id(id_tarefa)
     if tarefa is None:
-        raise HTTPException(status_code=404, detail = f"Tarefa ID:{id_tarefa} não encontrada")
+        raise HTTPException(status_code=404, detail = f"Tarefa ID:{id_tarefa} não encontrada, verifique se a tarefa existe")
     # return {"id_tarefa": id_tarefa, "details": tarefas_db[id_tarefa]}
     return tarefa
-
-# # Endpoint para buscar uma tarefa pelo id
-# @router.get("/tarefasid")
-# async def get_tarefa(request: Tarefa):
-#     id = Tarefa.id
-#     print(f'ID: ..........................................{id}')
-#     url = f'localhost:8000/{id}'
-#     response = requests.get(url)
-#     return response.json()
-
-# class TarefaID(BaseModel):
-#     id: int
-
-
 
 # @router.api_route("/tarefasid", methods=["GET", "POST"])
 # async def get_tarefa(id: int = None, request: Tarefa = None):
@@ -59,10 +45,10 @@ async def get_tarefa(id_tarefa: int):
 #     return response.json()
 
 
-###########################################################################################
+#######################################################################################################################
 # atualizar 
 @router.put("/tarefas/{id_tarefa}", response_model=Tarefa)
-def update_tarefa(id_tarefa: int, tarefa: TarefaCreate):
+def update_tarefa(id_tarefa: int, tarefa: TarefaUpdate):
     updated_tarefa = atualizar_tarefa(id_tarefa, tarefa)
     if updated_tarefa is None:
         raise HTTPException(status_code=404, detail = f"Tarefa ID:{id_tarefa} não encontrada")
@@ -79,7 +65,7 @@ class LoginInput(BaseModel):
     username: str
     password: str
 
-@router.post("/auth/login")
+@router.post("/auth")
 def login(login_data: LoginInput):
     user = authenticate_user(fake_users_db, login_data.username, login_data.password)
     if not user:
