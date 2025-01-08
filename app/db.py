@@ -44,10 +44,12 @@ def buscar_tarefa_por_id(id_tarefa: int) -> Tarefa:
 def atualizar_tarefa(id_tarefa: int, tarefa: TarefaCreate) -> Tarefa:
     for t in tarefas_db:
         if t.id == id_tarefa:
-            # t.titulo = tarefa.titulo
-            # t.descricao = tarefa.descricao
             t.status = tarefa.status
             t.data_atualizacao = datetime.now(fuso_horario_brasilia)
+
+            # t.titulo = tarefa.titulo            # habilitar se quiser alterar tambem
+            # t.descricao = tarefa.descricao      # habilitar se quiser alterar tambem
+            
             return t
     return None
 
