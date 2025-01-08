@@ -4,11 +4,14 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 from fastapi import HTTPException, Depends
 from fastapi.security import OAuth2PasswordBearer
+from dotenv import load_dotenv
+import os
 
+load_dotenv()
 # Configuração de segurança
-SECRET_KEY = "sua_chave_secreta_super_segura"  # Alterar para algo mais seguro
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+SECRET_KEY = os.getenv('SECRET_KEY') 
+ALGORITHM = os.getenv('ALGORITHM') 
+ACCESS_TOKEN_EXPIRE_MINUTES = 300
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
@@ -16,10 +19,10 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 # Usuários fictícios (substitua por um banco de dados)
 fake_users_db = {
     "usuario1": {
-        "username": "usuario1",
-        "full_name": "Usuário Um",
-        "email": "usuario1@example.com",
-        "hashed_password": pwd_context.hash("senha123"),  # "senha123"
+        "username": os.getenv('USERNAME') ,
+        "full_name": os.getenv('FULL_NAME'),
+        "email": os.getenv('EMAIL'),
+        "hashed_password": pwd_context.hash(os.getenv('HASHED_PASSWORD')),  # "senha123"
         "disabled": False,
     }
 }
@@ -66,10 +69,10 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
         username: str = payload.get("sub")
         if username is None:
             raise HTTPException(
-                status_code=401, detail="Não foi possível validar as credenciais"
+                status_code=401, detail="Não foi possível validar as credenciais, realize a autenticação."
             )
         return get_user(fake_users_db, username)
     except JWTError:
         raise HTTPException(
-            status_code=401, detail="Não foi possível validar as credenciais"
+            status_code=401, detail="Não foi possível validar as credenciais, realize a autenticação."
         )

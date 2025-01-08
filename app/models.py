@@ -32,3 +32,5 @@ class TarefaCreate(TarefaBase):
 # Modelo para representar a tarefa completa (inclui o id autoincrementado)
 class Tarefa(TarefaBase):
     id: int  # Campo id autoincrementado
+
+
