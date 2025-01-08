@@ -23,7 +23,7 @@ class TarefaBase(BaseModel):
         return status
 
     class Config:
-        orm_mode = True  # Permite conversão automática entre Pydantic e ORM
+        from_attributes = True  # Permite conversão automática entre Pydantic e ORM
 
 # Modelo para criação de tarefa (sem o id, pois o id será autoincrementado)
 class TarefaCreate(TarefaBase):
