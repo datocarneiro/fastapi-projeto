@@ -142,5 +142,9 @@ Sinta-se à vontade para contribuir com melhorias para este projeto. Por favor, 
 ---
 
 ## Licença
-Este projeto está licenciado sob Dato®
+
+Este projeto é licenciado sob a [MIT License](https://opensource.org/licenses/MIT).  
+Você pode usar, modificar e distribuir o código, desde que mantenha o aviso de copyright.
+
+Este projeto utiliza bibliotecas de terceiros. Consulte o arquivo `LICENSE-THIRD-PARTY` para mais detalhes.
 
