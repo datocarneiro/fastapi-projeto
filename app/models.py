@@ -24,9 +24,8 @@ class TarefaBase(BaseModel):
     
     
 
-    class Config:
-        # from_attributes = True  # Permite conversão automática entre Pydantic e ORM
-        model_config = ConfigDict(validate_assignment=True)
+ 
+    model_config = ConfigDict(orm_mode=True)
 
 # Modelo para criação de tarefa (sem o id, pois o id será autoincrementado)
 class TarefaCreate(TarefaBase):

@@ -9,6 +9,7 @@ import  requests
 
 
 router = APIRouter()
+
 # Endpoint para criar uma tarefa
 @router.post("/tarefas/", response_model=Tarefa)
 def criar_tarefa(tarefa: TarefaCreate, current_user: dict = Depends(get_current_user)):
@@ -26,7 +27,7 @@ def get_tarefas(current_user: dict = Depends(get_current_user)):
 ########################################################################################################################
 # Endpoint para buscar uma tarefa pelo id
 @router.get("/tarefas/{id_tarefa}", response_model=Tarefa)
-async def get_tarefa(id_tarefa: int):
+async def get_tarefa(id_tarefa: int, current_user: dict = Depends(get_current_user)):
     tarefa = buscar_tarefa_por_id(id_tarefa)
     if tarefa is None:
         raise HTTPException(status_code=404, detail = f"Tarefa ID:{id_tarefa} não encontrada, verifique se a tarefa existe")

@@ -1,9 +1,9 @@
 from datetime import datetime, timedelta
 import pytz
-import jwt  # Importando PyJWT
+import jwt 
 from passlib.context import CryptContext
-from fastapi import HTTPException, Depends
-from fastapi.security import OAuth2PasswordBearer
+from fastapi import HTTPException, Depends, Request
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials, OAuth2PasswordBearer # "OAuth2PasswordBearer" é para auth 2.0
 from dotenv import load_dotenv
 import os
 
@@ -15,7 +15,12 @@ ALGORITHM = os.getenv("ALGORITHM")
 ACCESS_TOKEN_EXPIRE_MINUTES = 300
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth")
+
+# Esquema de segurança por Bearer Token
+security = HTTPBearer()
+
+# # Esquema de segurança por AUTH 2.0
+# oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth")
 
 # Usuários fictícios (substitua por um banco de dados)
 fake_users_db = {
@@ -60,7 +65,7 @@ def authenticate_user(fake_db, username: str, password: str):
 # Função para criar um token JWT
 def create_access_token(data: dict, expires_delta: timedelta = None):
     to_encode = data.copy()
-    timezone = pytz.timezone("America/Sao_Paulo")  # Definindo o fuso horário como UTC
+    timezone = pytz.timezone("America/Sao_Paulo")  # Definindo o fuso horário
     current_time = datetime.now(timezone)
     if expires_delta:
         expire = current_time + expires_delta
@@ -72,16 +77,18 @@ def create_access_token(data: dict, expires_delta: timedelta = None):
         return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Erro ao gerar o token: {str(e)}")
+    
 
-# Função para obter o usuário autenticado
-def get_current_user(token: str = Depends(oauth2_scheme)):
+# Função para obter o usuário autenticado a partir do Bearer Token
+def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    token = credentials.credentials  # Obtém o token Bearer
     try:
-        # Decodificando o token com PyJWT
+        # Decodificar o token JWT
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username: str = payload.get("sub")
         if username is None:
             raise HTTPException(
-                status_code=401, detail="Não foi possível validar as credenciais, realize a autenticação."
+                status_code=401, detail="Não foi possível validar as credenciais."
             )
         return get_user(fake_users_db, username)
     except jwt.ExpiredSignatureError:
@@ -92,3 +99,24 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
         raise HTTPException(
             status_code=401, detail="Token inválido, realize a autenticação."
         )
+
+
+# # Função para obter o usuário autenticado por AUTH 2.0
+# def get_current_user(token: str = Depends(oauth2_scheme)):
+#     try:
+#         # Decodificando o token com PyJWT
+#         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+#         username: str = payload.get("sub")
+#         if username is None:
+#             raise HTTPException(
+#                 status_code=401, detail="Não foi possível validar as credenciais, realize a autenticação."
+#             )
+#         return get_user(fake_users_db, username)
+#     except jwt.ExpiredSignatureError:
+#         raise HTTPException(
+#             status_code=401, detail="Token expirado, faça login novamente."
+#         )
+#     except jwt.InvalidTokenError:
+#         raise HTTPException(
+#             status_code=401, detail="Token inválido, realize a autenticação."
+#         )
