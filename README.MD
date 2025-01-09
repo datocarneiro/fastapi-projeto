@@ -149,8 +149,3 @@ Você pode usar, modificar e distribuir o código, desde que mantenha o aviso de
 Este projeto utiliza bibliotecas de terceiros. Consulte o arquivo `LICENSE-THIRD-PARTY` para mais detalhes.
 
 
-## Autor
-- [Dato®]
-
-
-
