@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 import pytz
-from jose import JWTError, jwt
+import jwt  # Importando PyJWT
 from passlib.context import CryptContext
 from fastapi import HTTPException, Depends
 from fastapi.security import OAuth2PasswordBearer
@@ -10,8 +10,8 @@ import os
 load_dotenv()
 
 # Configuração de segurança
-SECRET_KEY = os.getenv('SECRET_KEY') 
-ALGORITHM = os.getenv('ALGORITHM') 
+SECRET_KEY = os.getenv("SECRET_KEY")
+ALGORITHM = os.getenv("ALGORITHM")
 ACCESS_TOKEN_EXPIRE_MINUTES = 300
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -20,22 +20,21 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth")
 # Usuários fictícios (substitua por um banco de dados)
 fake_users_db = {
     "admin": {
-        "username": os.getenv('ADMIN_USERNAME') ,
-        "full_name": os.getenv('ADMIN_FULL_NAME'),
-        "email": os.getenv('ADMIN_EMAIL'),
-        "hashed_password": pwd_context.hash(os.getenv('ADMIN_PASSWORD')), 
+        "username": os.getenv("ADMIN_USERNAME"),
+        "full_name": os.getenv("ADMIN_FULL_NAME"),
+        "email": os.getenv("ADMIN_EMAIL"),
+        "hashed_password": pwd_context.hash(os.getenv("ADMIN_PASSWORD")),
         "disabled": False,
     },
     "user1": {
-        "username": os.getenv('USERNAME') ,
-        "full_name": os.getenv('FULL_NAME'),
-        "email": os.getenv('EMAIL'),
-        "hashed_password": pwd_context.hash(os.getenv('PASSWORD')), 
+        "username": os.getenv("USERNAME"),
+        "full_name": os.getenv("FULL_NAME"),
+        "email": os.getenv("EMAIL"),
+        "hashed_password": pwd_context.hash(os.getenv("PASSWORD")),
         "disabled": False,
-    }
+    },
 }
 
-print(fake_users_db["admin"]["hashed_password"])
 
 # Função para verificar senha
 def verify_password(plain_password, hashed_password):
@@ -58,23 +57,26 @@ def authenticate_user(fake_db, username: str, password: str):
         return False
     return user
 
-
 # Função para criar um token JWT
 def create_access_token(data: dict, expires_delta: timedelta = None):
     to_encode = data.copy()
-    timezone = pytz.timezone("UTC")  # Definindo o fuso horário como UTC, altere conforme necessário
+    timezone = pytz.timezone("America/Sao_Paulo")  # Definindo o fuso horário como UTC
     current_time = datetime.now(timezone)
     if expires_delta:
         expire = current_time + expires_delta
     else:
         expire = current_time + timedelta(minutes=15)
     to_encode.update({"exp": expire})
-    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-
+    try:
+        # Gerando o token com PyJWT
+        return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro ao gerar o token: {str(e)}")
 
 # Função para obter o usuário autenticado
 def get_current_user(token: str = Depends(oauth2_scheme)):
     try:
+        # Decodificando o token com PyJWT
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username: str = payload.get("sub")
         if username is None:
@@ -82,7 +84,11 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
                 status_code=401, detail="Não foi possível validar as credenciais, realize a autenticação."
             )
         return get_user(fake_users_db, username)
-    except JWTError:
+    except jwt.ExpiredSignatureError:
         raise HTTPException(
-            status_code=401, detail="Não foi possível validar as credenciais, realize a autenticação."
+            status_code=401, detail="Token expirado, faça login novamente."
+        )
+    except jwt.InvalidTokenError:
+        raise HTTPException(
+            status_code=401, detail="Token inválido, realize a autenticação."
         )
