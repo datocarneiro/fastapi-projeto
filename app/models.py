@@ -22,10 +22,7 @@ class TarefaBase(BaseModel):
             raise ValueError(f"status '{status}' não é válido. Os status válidos são: {status_validos}.")
         return status
     
-    
-
- 
-    model_config = ConfigDict(orm_mode=True)
+    model_config = ConfigDict(from_attributes=True)
 
 # Modelo para criação de tarefa (sem o id, pois o id será autoincrementado)
 class TarefaCreate(TarefaBase):

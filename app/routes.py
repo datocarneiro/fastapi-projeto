@@ -75,7 +75,7 @@ def login(login_data: LoginInput):
     access_token = create_access_token(data={"sub": user["username"]}, expires_delta=access_token_expires)
     return {"access_token": access_token, "token_type": "bearer"}
 
-# Endpoint protegido (exemplo)
-@router.get("/tarefas/protegido")
-def read_protected_tarefas(current_user: dict = Depends(get_current_user)):
-    return {"msg": f"Bem-vindo, {current_user['username']}! Você está autenticado."}
+# # Endpoint protegido (exemplo)
+# @router.get("/tarefas/protegido")
+# def read_protected_tarefas(current_user: dict = Depends(get_current_user)):
+#     return {"msg": f"Bem-vindo, {current_user['username']}! Você está autenticado."}
